@@ -1,0 +1,28 @@
+kendo-icon {
+  font-size: 16px;
+}
+
+kendo-dialog {
+  .k-form {
+    fieldset {
+      .k-form-legend {
+        font-weight: 600;
+        line-height: 40px;
+      }
+      .form-group {
+        display: flex;
+        .k-form-field {
+          width: 50%;
+          margin: 10px;
+          kendo-label {
+            font-size: 15px;
+          }
+        }
+      }
+      .k-form-buttons {
+        display: flex;
+        justify-content: flex-end;
+      }
+    }
+  }
+}

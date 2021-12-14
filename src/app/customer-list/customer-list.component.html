@@ -1,0 +1,195 @@
+<kendo-grid [kendoGridBinding]="customerView" kendoGridSelectBy="id" [selectedKeys]="mySelection" [pageSize]="10"
+  [pageable]="true" [sortable]="true" [reorderable]="true" [resizable]="true" [height]="605"
+  [columnMenu]="{ filter: true }">
+  <ng-template kendoGridToolbarTemplate>
+    <input placeholder="Search in all columns..." kendoTextBox (input)="onFilter($any($event.target).value)" />
+    <kendo-grid-spacer></kendo-grid-spacer>
+    <button kendoGridExcelCommand type="button" icon="file-excel">
+      Export to Excel
+    </button>
+  </ng-template>
+  <kendo-grid-checkbox-column [width]="45" [headerClass]="{ 'text-center': true }" [resizable]="false"
+    [columnMenu]="false" [showSelectAll]="true"></kendo-grid-checkbox-column>
+  <kendo-grid-column-group title="Customer" [columnMenu]="false">
+    <kendo-grid-column field="id" title="ID" [width]="60">
+      <ng-template kendoGridCellTemplate let-item>
+        <div class="customer-name">{{ item.id }}</div>
+      </ng-template>
+    </kendo-grid-column>
+
+    <kendo-grid-column field="CompanyName" title="Company Name" [width]="160">
+      <ng-template kendoGridCellTemplate let-item>
+        <div class="flag">{{ item.CompanyName }}</div>
+      </ng-template>
+    </kendo-grid-column>
+
+    <kendo-grid-column field="ContactTitle" title="Job Title" [width]="120">
+      <ng-template kendoGridCellTemplate let-item>
+        <div class="flag">{{ item.ContactTitle }}</div>
+      </ng-template>
+    </kendo-grid-column>
+  </kendo-grid-column-group>
+
+  <kendo-grid-column-group title="Contacts" [columnMenu]="false">
+    <kendo-grid-column field="ContactName" title="Contact Name" [width]="110" [resizable]="false" filter="boolean">
+      <ng-template kendoGridCellTemplate let-dataItem>
+        <span>{{ dataItem.ContactName }}</span>
+      </ng-template>
+    </kendo-grid-column>
+
+    <kendo-grid-column field="Country" title="Country" [width]="80" [resizable]="false">
+      <ng-template kendoGridCellTemplate let-item>
+        <div class="flag">{{ item.Country }}</div>
+      </ng-template>
+    </kendo-grid-column>
+
+    <kendo-grid-column field="City" title="City" [width]="90" [resizable]="false" filter="boolean">
+      <ng-template kendoGridCellTemplate let-dataItem>
+        <span>{{ dataItem.City }}</span>
+      </ng-template>
+    </kendo-grid-column>
+
+    <kendo-grid-column field="Address" title="Address" [width]="150" [resizable]="false" filter="boolean">
+      <ng-template kendoGridCellTemplate let-dataItem>
+        <span>{{ dataItem.Address }}</span>
+      </ng-template>
+    </kendo-grid-column>
+
+    <kendo-grid-column field="Phone" title="Phone" [width]="130">
+      <ng-template kendoGridCellTemplate let-dataItem>
+        <span>{{ dataItem.Phone }}</span>
+      </ng-template>
+    </kendo-grid-column>
+
+    <kendo-grid-column field="Fax" title="Fax" [width]="100">
+      <ng-template kendoGridCellTemplate let-dataItem>
+        <span>{{ dataItem.Fax }}</span>
+      </ng-template>
+    </kendo-grid-column>
+
+    <kendo-grid-column title="Action" [width]="80">
+      <ng-template kendoGridCellTemplate let-item>
+        <button kendoButton id="edit-btn" (click)="onEdit(item)" style="margin-right: 5px">
+          <kendo-icon name="pencil"></kendo-icon>
+        </button>
+        <button kendoButton *ngIf="!dialogOpened" id="delete-btn" (click)="deleted(item)"
+          style="background-color: #ef5350">
+          <kendo-icon name="delete"></kendo-icon>
+        </button>
+        <kendo-dialog *ngIf="dialogOpened" (close)="close()">
+          <kendo-dialog-titlebar>
+            <div style="font-size: 18px; line-height: 1.3em">
+              <span class="k-icon k-i-warning"></span> Delete Data
+            </div>
+          </kendo-dialog-titlebar>
+          <p style="margin: 30px; text-align: center">
+            This action cannot be undone.
+          </p>
+          <kendo-dialog-actions>
+            <button kendoButton (click)="close()">Cancel</button>
+            <button kendoButton (click)="deleteCustomer(item.id)">
+              Delete
+            </button>
+          </kendo-dialog-actions>
+        </kendo-dialog>
+      </ng-template>
+    </kendo-grid-column>
+  </kendo-grid-column-group>
+  <kendo-grid-pdf fileName="Employees.pdf" [repeatHeaders]="true"></kendo-grid-pdf>
+  <kendo-grid-excel fileName="Employees.xlsx"></kendo-grid-excel>
+</kendo-grid>
+
+<kendo-dialog title="Edit" id="dialogEdit" *ngIf="isEdit" (close)="close()" [minWidth]="250" [width]="900">
+  <form class="k-form" [formGroup]="customerForm" id="update-form">
+    <fieldset class="k-form-fieldset">
+      <legend class="k-form-legend">User Details</legend>
+      <div class="form-group">
+        <kendo-formfield>
+          <kendo-label for="companyName">Company Name:</kendo-label>
+          <input formControlName="companyName" kendoTextBox required [ngClass]="{
+              'ng-invalid ng-touched': form.companyName.errors
+            }" />
+          <kendo-formerror *ngIf="form.companyName.errors?.required">Error: Company name is required</kendo-formerror>
+          <kendo-formerror *ngIf="
+              form.companyName.errors?.minlength ||
+              form.companyName.errors?.maxlength
+            ">Error: Company name must be 5 to 20 character
+          </kendo-formerror>
+        </kendo-formfield>
+        <kendo-formfield>
+          <kendo-label for="jobTitle">Contact Title:</kendo-label>
+          <input formControlName="jobTitle" kendoTextBox required />
+          <kendo-formerror *ngIf="form.jobTitle.errors?.required">Error: Contact title is required</kendo-formerror>
+          <kendo-formerror *ngIf="
+          form.jobTitle.errors?.minlength ||
+          form.jobTitle.errors?.maxlength
+        ">Error: Company name must be 5 to 20 character
+          </kendo-formerror>
+        </kendo-formfield>
+      </div>
+      <div class="form-group">
+        <kendo-formfield>
+          <kendo-label for="contactName">Contact Name:</kendo-label>
+          <input formControlName="contactName" kendoTextBox required />
+          <kendo-formerror *ngIf="form.contactName.errors?.required">Error: Contact name is required</kendo-formerror>
+        </kendo-formfield>
+        <kendo-formfield>
+          <kendo-label for="country">Country:</kendo-label>
+          <input formControlName="country" kendoTextBox required />
+          <kendo-formerror *ngIf="form.country.errors?.required">Error: Country is required</kendo-formerror>
+          <kendo-formerror *ngIf="
+          form.country.errors?.minlength ||
+          form.country.errors?.maxlength
+        ">Error: Company name must be 3 to 10 character
+          </kendo-formerror>
+        </kendo-formfield>
+      </div>
+      <div class="form-group">
+        <kendo-formfield>
+          <kendo-label for="city">City:</kendo-label>
+          <input formControlName="city" kendoTextBox required />
+          <kendo-formerror *ngIf="form.city.errors?.required">Error: City is required</kendo-formerror>
+          <kendo-formerror *ngIf="
+          form.city.errors?.minlength ||
+          form.city.errors?.maxlength
+        ">Error: Company name must be 3 to 15 character
+          </kendo-formerror>
+        </kendo-formfield>
+        <kendo-formfield>
+          <kendo-label for="address">Address:</kendo-label>
+          <input formControlName="address" kendoTextBox required />
+          <kendo-formerror *ngIf="form.address.errors?.required">Error: Address is required</kendo-formerror>
+          <kendo-formerror *ngIf="
+          form.city.errors?.minlength ||
+          form.city.errors?.maxlength
+        ">Error: Company name must be 3 to 15 character
+          </kendo-formerror>
+        </kendo-formfield>
+      </div>
+      <div class="form-group">
+        <kendo-formfield>
+          <kendo-label for="phone">Phone:</kendo-label>
+          <input formControlName="phone" kendoTextBox required />
+          <kendo-formerror *ngIf="form.phone.errors?.required">Error: Phone is required</kendo-formerror>
+          <kendo-formerror *ngIf="
+          form.phone.errors?.minlength ||
+          form.phone.errors?.maxlength
+        ">Error: Company name must be 3 to 15 character
+          </kendo-formerror>
+        </kendo-formfield>
+        <kendo-formfield>
+          <kendo-label for="fax">Fax:</kendo-label>
+          <input formControlName="fax" kendoTextBox />
+        </kendo-formfield>
+      </div>
+
+      <div class="k-form-buttons">
+        <button class="k-button k-primary" (click)="clear()">Clear</button>
+        <button type="submit" id="save-btn" class="k-button save-btn" style="background-color: #7cb342"
+          [disabled]="customerForm.invalid" (click)="onSave()">
+          Save
+        </button>
+      </div>
+    </fieldset>
+  </form>
+</kendo-dialog>
